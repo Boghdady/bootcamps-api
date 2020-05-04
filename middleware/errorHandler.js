@@ -1,8 +1,9 @@
-const AppError = require('../utils/AppError');
+const AppError = require('../utils/appError');
 
-/* @desc Define Global Error Handler middleware :
-By specifying 4 parameters express know automatically that is error handling middleware
-*/
+/* Define GLOBAL ERROR HANDLING MIDDLEWARE :
+By specifying 4 parameters express know Automatically that
+this is error handling Middleware
+ */
 module.exports = (err, req, res, next) => {
 	err.statusCode = err.statusCode || 500;
 	err.status = err.status || 'error';
@@ -11,57 +12,24 @@ module.exports = (err, req, res, next) => {
 		sendErrorForDevelopment(err, res);
 	} else if (process.env.NODE_ENV === 'production') {
 		/*
-            There are 3 types of mongoose errors we want to mark it as operational errors :
-            1- CastError -> can't convert ObjectID
-            2- MongoError -> Duplicate Fields
-            3- ValidationError
-        */
+      There are 3 types of mongoose errors we want to mark it as
+      operational errors :
+      1- CastError ->  can't convert objectID
+      2- MongoError -> Duplicate Fields
+      3- ValidationError
+     */
 		let error = { ...err };
 		if (error.name === 'CastError') error = handleCastErrorDB(error);
-		if (error.name === 'ValidationError') error = handleValidationDB(error);
 		if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-
-		/* @desc There are two types of token error:
-            1- Token changed
-            2- Token expired
-        */
+		if (error.name === 'ValidationError') error = handleValidationDB(error);
+		/*
+      Tow types of token error :
+      1- token changed
+      2- token expired
+     */
 		if (error.name === 'JsonWebTokenError') error = handleJWTChangeTokenError();
 		if (error.name === 'TokenExpiredError') error = handleJWTExpiredTokenError();
-		sendErrorForProduction(err, res);
-	}
-};
-
-const sendErrorForDevelopment = (err, res) => {
-	/* @desc Show all types of errors in dev mode
-        - Operational errors
-        - Programming errors
-        - Unknown errors
-     */
-	res.status(err.statusCode).json({
-		status: err.status,
-		error: err,
-		message: err.message,
-		stack: err.stack
-	});
-};
-
-const sendErrorForProduction = (err, res) => {
-	// Operational, trusted error: send message to client
-	// Operational errors coming from AppError class
-	if (err.isOperational) {
-		res.status(err.statusCode).json({
-			status: err.status,
-			message: err.message
-		});
-		// Programming or other unknown error : don't appear the error to the client
-	} else {
-		// 1) Log error
-		console.error('Programming or unknown Error : ', err.red);
-		// 2) Send generic message to postman
-		res.status(500).json({
-			status: 'error',
-			message: 'Something went very wrong'
-		});
+		sendErrorForProduction(error, res);
 	}
 };
 
@@ -87,3 +55,33 @@ const handleJWTChangeTokenError = () => new AppError('Invalid token. Please logi
 
 // This error happen when token is expired
 const handleJWTExpiredTokenError = () => new AppError('Token is expired. Please login again!', 401);
+
+const sendErrorForDevelopment = (err, res) => {
+	// Showing Operational or Programming and Unknown Errors
+	res.status(err.statusCode).json({
+		status: err.status,
+		error: err,
+		message: err.message,
+		stack: err.stack
+	});
+};
+
+const sendErrorForProduction = (err, res) => {
+	// Operational, trusted error: send message to client
+	// Operational errors coming from AppError class
+	if (err.isOperational) {
+		res.status(err.statusCode).json({
+			status: err.status,
+			message: err.message
+		});
+		// Programming or other unknown error : don't appear the error to the client
+	} else {
+		// 1) Log error
+		console.error('Programming or unknown Error : ', err);
+		// 2) Send generic message to postman
+		res.status(500).json({
+			status: 'error',
+			message: 'Something went very wrong'
+		});
+	}
+};
