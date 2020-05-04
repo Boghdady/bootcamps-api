@@ -10,7 +10,7 @@ exports.getBootcamps = async (req, res, next) => {
 	res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps });
 };
 
-// @desc        Get single bootcamp
+// @desc        Get single bootcamps
 // @route       GET /api/v1/bootcamps/:id
 // @access      Public
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
@@ -33,7 +33,10 @@ exports.createBootcamp = asyncHandler(async (req, res, next) => {
 // @route       PUT /api/v1/bootcamps/:id
 // @access      private
 exports.updateBootcamp = asyncHandler(async (req, res, next) => {
-	const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+	const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+		new: true,
+		runValidators: true
+	});
 	if (!bootcamp) {
 		return res.status(404).json({ success: false, data: null });
 	}

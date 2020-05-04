@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const mongoose = require('mongoose');
 
 const bootcampSchema = new mongoose.Schema({
@@ -17,6 +18,7 @@ const bootcampSchema = new mongoose.Schema({
 	website: {
 		type: String,
 		match: [
+			// eslint-disable-next-line no-useless-escape
 			/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
 			'Please use a valid URL with HTTP or HTTPS'
 		]
