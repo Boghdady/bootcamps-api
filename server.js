@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./middleware/errorHandler');
 
 // Route files
@@ -22,7 +23,10 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount routers
 app.use('/api/v1/bootcamps', bootcamps);
-
+// Handle undefined routs
+app.all('*', (req, res, next) => {
+	next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
+});
 // GLOBAL ERROR HANDLING MIDDLEWARE
 app.use(globalErrorHandler);
 
