@@ -7,7 +7,7 @@ const globalErrorHandler = require('./middleware/errorHandler');
 
 // Route files
 const connectDB = require('./config/db');
-const bootcamps = require('./routes/bootcamps');
+const bootcamps = require('./routes/bootcampRoutes');
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });

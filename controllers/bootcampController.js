@@ -1,4 +1,4 @@
-const Bootcamp = require('../models/Bootcamp');
+const Bootcamp = require('../models/bootcampModel');
 const AppError = require('../utils/AppError');
 
 // @desc        Get all bootcamps
