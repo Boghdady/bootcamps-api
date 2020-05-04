@@ -1,12 +1,11 @@
 const Bootcamp = require('../models/Bootcamp');
+const AppError = require('../utils/AppError');
+
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = async (req, res, next) => {
 	const bootcamps = await Bootcamp.find();
-	if (!bootcamps) {
-		return res.status(404).json({ success: false, data: null });
-	}
 	res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps });
 };
 
@@ -16,7 +15,7 @@ exports.getBootcamps = async (req, res, next) => {
 exports.getBootcamp = async (req, res, next) => {
 	const bootcamp = await Bootcamp.findById(req.params.id);
 	if (!bootcamp) {
-		return res.status(404).json({ success: false, data: null });
+		return next(new AppError(`There are no bootcamp for this id : ${req.params.id}`, 404));
 	}
 	res.status(200).json({ success: true, data: bootcamp });
 };
