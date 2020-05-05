@@ -5,10 +5,10 @@ const asyncHandler = require('../middleware/asyncHandler');
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
-exports.getBootcamps = async (req, res, next) => {
+exports.getBootcamps = asyncHandler(async (req, res, next) => {
 	const bootcamps = await Bootcamp.find();
 	res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps });
-};
+});
 
 // @desc        Get single bootcamps
 // @route       GET /api/v1/bootcamps/:id
