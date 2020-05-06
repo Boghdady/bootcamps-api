@@ -10,15 +10,15 @@
   "author": "Ahmed Boghdady",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.9.11",
     "morgan": "^1.10.0",
-    "slugify": "^1.4.0",
-    "node-geocoder": "^3.24.0"
+    "node-geocoder": "^3.24.0",
+    "slugify": "^1.4.0"
   },
   "devDependencies": {
-    "colors": "^1.4.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
