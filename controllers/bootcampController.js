@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 const Bootcamp = require('../models/bootcampModel');
 const AppError = require('../utils/AppError');
 const asyncHandler = require('../middleware/asyncHandler');
@@ -7,15 +8,59 @@ const geocoder = require('../utils/geocoder');
 // @route       GET /api/v1/bootcamps
 // @access      Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-	const queryObj = req.query;
+	let query;
+	const queryObj = { ...req.query };
+	const excludedFields = [ 'page', 'sort', 'limit', 'fields' ];
+	excludedFields.forEach((el) => delete queryObj[el]);
 	let queryStr = JSON.stringify(queryObj);
-
 	// replace any (gte,gt,lte,lt) with ($gte,$gt,$lte,$lt)
 	queryStr = queryStr.replace(/\b(gte|gt|lte|lt|in)\b/g, (match) => `$${match}`);
-	const query = Bootcamp.find(JSON.parse(queryStr));
 
-	const bootcamps = await Bootcamp.find(query);
-	res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps });
+	/// Finding resource (Filter)
+	query = Bootcamp.find(JSON.parse(queryStr));
+
+	///  Select Fields
+	if (req.query.fields) {
+		const fields = req.query.fields.split(',').join(' ');
+		query = query.select(fields);
+	}
+
+	/// Sort
+	if (req.query.sort) {
+		const sortBy = req.query.sort.split(',').join(' ');
+		query = query.sort(sortBy);
+	} else {
+		query = query.sort('-createdAt');
+	}
+
+	/// Pagination
+	const page = req.query.page * 1 || 1;
+	const limit = req.query.limit * 1 || 25;
+	const startIndex = (page - 1) * limit;
+	const endIndex = page * limit;
+	const total = await Bootcamp.countDocuments();
+
+	query = query.skip(startIndex).limit(limit);
+
+	///  Excute query
+	const bootcamps = await query;
+
+	/// Pagination Result
+	const pagination = {};
+	if (endIndex < total) {
+		pagination.next = {
+			page: page + 1,
+			limit: limit
+		};
+	}
+	if (startIndex > 0) {
+		pagination.prev = {
+			page: page - 1,
+			limit: limit
+		};
+	}
+
+	res.status(200).json({ success: true, count: bootcamps.length, pagination, data: bootcamps });
 });
 
 // @desc        Get single bootcamps
