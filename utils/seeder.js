@@ -23,6 +23,7 @@ const insertData = async () => {
 	try {
 		await Bootcamp.create(bootcamps);
 		console.log('Data Inserted'.green.inverse);
+		process.exit();
 	} catch (error) {
 		console.log(error);
 	}
