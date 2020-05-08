@@ -9,6 +9,7 @@ dotenv.config({ path: './config/config.env' });
 // Route files
 const connectDB = require('./config/db');
 const bootcamps = require('./routes/bootcampRoutes');
+const courses = require('./routes/courseRoutes');
 
 // Connect to database
 connectDB();
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount routers
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses);
 // Handle undefined routs
 app.all('*', (req, res, next) => {
 	next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
