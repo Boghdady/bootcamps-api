@@ -45,7 +45,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 	///  Excute query
 	const bootcamps = await query;
 
-	/// Pagination Result
+	/// Pagination Result (next - prev)
 	const pagination = {};
 	if (endIndex < total) {
 		pagination.next = {
