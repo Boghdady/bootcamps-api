@@ -39,13 +39,13 @@ const courseSchema = new mongoose.Schema({
 });
 
 // note: populate will add new query that mean request will do two queries one for find courses and second for populate courses
-courseSchema.pre(/^find/, function(next) {
-	this.populate({
-		path: 'bootcamp',
-		select: 'name description'
-	});
-	next();
-});
+// courseSchema.pre(/^find/, function(next) {
+// 	this.populate({
+// 		path: 'bootcamp',
+// 		select: 'name description'
+// 	});
+// 	next();
+// });
 
 const Course = mongoose.model('Course', courseSchema);
 module.exports = Course;
