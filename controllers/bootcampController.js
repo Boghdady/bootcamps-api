@@ -43,7 +43,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 	query = query.skip(startIndex).limit(limit);
 
 	///  Excute query
-	const bootcamps = await query;
+	const bootcamps = await query.populate({ path: 'courses' });
 
 	/// Pagination Result (next - prev)
 	const pagination = {};
@@ -67,7 +67,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 // @route       GET /api/v1/bootcamps/:id
 // @access      Public
 exports.getBootcamp = asyncHandler(async (req, res, next) => {
-	const bootcamp = await Bootcamp.findById(req.params.id);
+	const bootcamp = await Bootcamp.findById(req.params.id).populate({ path: 'courses' });
 	if (!bootcamp) {
 		return next(new AppError(`There are no bootcamp for this id : ${req.params.id}`, 404));
 	}
@@ -100,7 +100,12 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      private
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-	const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+	const bootcamp = await Bootcamp.findById(req.params.id);
+	if (!bootcamp) {
+		return next(new AppError(`These is no doc for this id : ${req.params.id}`));
+	}
+	/// Use 'remove' method trigger 'remove' event in pre middleware
+	bootcamp.remove();
 	res.status(200).json({ success: true, data: bootcamp });
 });
 
