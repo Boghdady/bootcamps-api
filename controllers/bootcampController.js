@@ -105,7 +105,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 		return next(new AppError(`These is no doc for this id : ${req.params.id}`));
 	}
 	/// Use 'remove' method trigger 'remove' event in pre middleware
-	bootcamp.remove();
+	await bootcamp.remove();
 	res.status(200).json({ success: true, data: bootcamp });
 });
 

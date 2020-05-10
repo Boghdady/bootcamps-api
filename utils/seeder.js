@@ -23,7 +23,7 @@ const courses = JSON.parse(fs.readFileSync('../_data/courses.json'));
 const insertData = async () => {
 	try {
 		await Bootcamp.create(bootcamps);
-		await Course.create(courses);
+		// await Course.create(courses);
 		console.log('Data Inserted'.green.inverse);
 		process.exit();
 	} catch (error) {
