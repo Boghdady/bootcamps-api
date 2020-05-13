@@ -10,15 +10,18 @@
   "author": "Ahmed Boghdady",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.11",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "node-geocoder": "^3.24.0",
     "sharp": "^0.25.2",
-    "slugify": "^1.4.0"
+    "slugify": "^1.4.0",
+    "validator": "^13.0.0"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
