@@ -1,11 +1,9 @@
 /* eslint-disable prefer-destructuring */
 const Course = require('../models/courseModel');
 const Bootcamp = require('../models/bootcampModel');
-const AppError = require('../utils/AppError');
-const asyncHandler = require('../middleware/asyncHandler');
 const factory = require('./handlerFactory');
 
-// Middleware to create filterObject for get courses for bootcamp model
+// Middleware to create filterObject for get courses In bootcamp
 exports.createFilterObjectForNestedRoute = (req, res, next) => {
 	let filter = {};
 	if (req.params.bootcampId) filter = { bootcamp: req.params.bootcampId };
@@ -24,7 +22,6 @@ exports.getCourses = factory.getAll(Course, {
 
 /// @desc        Get single course
 /// @route       GET /api/v1/courses
-/// @route       GET /api/v1/bootcamps/courses/:id
 /// @access      Public
 exports.getCourse = factory.getOne(Course, {
 	path: 'bootcamp',
