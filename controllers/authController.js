@@ -37,7 +37,10 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 	// Validate entered password
 	const isMatch = await user.matchPassword(password);
-	if (!isMatch) return next(new AppError('Invalid email or password', 401));
+	console.log(isMatch);
+	if (!isMatch) {
+		return next(new AppError('Invalid email or password', 401));
+	}
 
 	// Craete token
 	createTokenAndSendViaCookie(user, 200, res);

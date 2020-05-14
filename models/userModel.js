@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
 		},
 		select: false
 	},
+	passwordChangedAt: Date,
 	resetPasswordToken: String,
 	resetPasswordExpire: Date,
 	createdAt: {
@@ -47,8 +48,17 @@ const userSchema = new mongoose.Schema({
 
 // Encrypt password using bcrypt
 userSchema.pre('save', async function(next) {
+	if (!this.isModified('password')) return next();
 	const salt = await bcrypt.genSalt(10);
 	this.password = await bcrypt.hash(this.password, salt);
+
+	this.passwordConfirm = undefined;
+	next();
+});
+
+userSchema.pre('save', async function(next) {
+	if (!this.isModified('password') || this.isNew) return next();
+	this.passwordChangedAt = Date.now() - 1000;
 	next();
 });
 
@@ -62,6 +72,14 @@ userSchema.methods.createSignedJwtToken = function() {
 // match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function(enteredPassword) {
 	return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.checkIfUserChangePasswordAfter = function(JwtTimestamp) {
+	if (this.passwordChangedAt) {
+		const passwordChangedAtTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+		return JwtTimestamp < passwordChangedAtTimestamp; // true => password changed
+	}
+	return false;
 };
 
 module.exports = mongoose.model('User', userSchema);
