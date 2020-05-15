@@ -25,7 +25,6 @@ const upload = multer({
 exports.uploadBootcampImage = upload.fields([ { name: 'photo', maxCount: 1 } ]);
 
 exports.resizeBootcampImage = asyncHandler(async (req, res, next) => {
-	console.log(req.files);
 	if (!req.files.photo) return next();
 	// processing using sharp
 	const bootcampFilename = `bootcamp-${req.params.id}-photo.jpeg`;

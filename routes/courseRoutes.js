@@ -1,4 +1,5 @@
 const express = require('express');
+const { protect, authorize } = require('../middleware/auth');
 const {
 	getCourses,
 	getCourse,
@@ -17,7 +18,11 @@ const router = express.Router({ mergeParams: true });
 router
 	.route('/')
 	.get(createFilterObjectForNestedRoute, getCourses)
-	.post(setBootcampIdToBody, setBootcampIdToRequest, createCourse);
-router.route('/:id').get(getCourse).put(updateCourse).delete(deleteCourse);
+	.post(protect, authorize('publisher', 'admin'), setBootcampIdToBody, setBootcampIdToRequest, createCourse);
+router
+	.route('/:id')
+	.get(getCourse)
+	.put(protect, authorize('publisher', 'admin'), updateCourse)
+	.delete(protect, authorize('publisher', 'admin'), deleteCourse);
 
 module.exports = router;
