@@ -28,9 +28,10 @@ exports.getCourse = factory.getOne(Course, {
 	select: 'name description'
 });
 
-// Middleware to Set Bootcamp ID to body before creating course
+// Middleware to Set User and Bootcamp ID to body before creating course
 exports.setBootcampIdToBody = (req, res, next) => {
 	if (!req.body.bootcamp) req.body.bootcamp = req.params.bootcampId;
+	if (!req.body.user) req.body.user = req.user.id;
 	next();
 };
 // Middleware to Set bootcampId to req to create course for bootcamp

@@ -48,6 +48,18 @@ exports.getBootcamps = factory.getAll(Bootcamp);
 /// @access      Public
 exports.getBootcamp = factory.getOne(Bootcamp, { path: 'courses' });
 
+// Call this middleware before craete bootcamp
+exports.setUserIdToBody = (req, res, next) => {
+	if (!req.body.user) req.body.user = req.user.id;
+	next();
+};
+// Only admin role can add more than one bootcamp
+exports.onlyAdminAddMoreThanOneBootcamp = asyncHandler(async (req, res, next) => {
+	const bootcamp = await Bootcamp.findOne({ user: req.user.id });
+	if (bootcamp && req.user.role !== 'admin')
+		return next(new AppError(`You are already published bootcamp before`, 400));
+	next();
+});
 /// @desc        Create new bootcamp
 /// @route       POST /api/v1/bootcamps
 /// @access      private

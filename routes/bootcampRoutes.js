@@ -10,7 +10,9 @@ const {
 	getBootcampsWithInRadius,
 	getBootcampsWithInDistance,
 	uploadBootcampImage,
-	resizeBootcampImage
+	resizeBootcampImage,
+	setUserIdToBody,
+	onlyAdminAddMoreThanOneBootcamp
 } = require('../controllers/bootcampController');
 
 const router = express.Router();
@@ -21,7 +23,10 @@ router.use('/:bootcampId/courses', courseRouter);
 router.route('/radius/:zipcode/:distance').get(getBootcampsWithInRadius);
 router.route('/bootcamps-within/:distance/center/:latlng/unit/:unit').get(getBootcampsWithInDistance);
 
-router.route('/').get(getBootcamps).post(protect, authorize('publisher', 'admin'), createBootcamp);
+router
+	.route('/')
+	.get(getBootcamps)
+	.post(protect, authorize('publisher', 'admin'), setUserIdToBody, onlyAdminAddMoreThanOneBootcamp, createBootcamp);
 router
 	.route('/:id')
 	.get(getBootcamp)
