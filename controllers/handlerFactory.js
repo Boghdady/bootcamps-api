@@ -33,17 +33,10 @@ exports.updateOne = (Model) =>
 		});
 	});
 
-exports.createOne = (childModel, parentModel) =>
+exports.createOne = (Model) =>
 	asyncHandler(async (req, res, next) => {
-		// To allow nested routes like create  course on a Bootcamp
-		if (req.parentId) {
-			const parentDoc = await parentModel.findById(req.parentId);
-			if (!parentDoc) {
-				return next(new AppError(`There is no doc for this id:${req.parentId}`, 404));
-			}
-		}
 		// create : if there are data in the body not exist in the Schema will ignore it
-		const newDoc = await childModel.create(req.body);
+		const newDoc = await Model.create(req.body);
 		res.status(201).json({
 			success: true,
 			data: newDoc
