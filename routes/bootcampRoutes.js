@@ -12,7 +12,8 @@ const {
 	uploadBootcampImage,
 	resizeBootcampImage,
 	setUserIdToBody,
-	onlyAdminAddMoreThanOneBootcamp
+	onlyAdminAddMoreThanOneBootcamp,
+	checkBootcampOwnership
 } = require('../controllers/bootcampController');
 
 const router = express.Router();
@@ -30,7 +31,14 @@ router
 router
 	.route('/:id')
 	.get(getBootcamp)
-	.put(protect, authorize('publisher', 'admin'), uploadBootcampImage, resizeBootcampImage, updateBootcamp)
-	.delete(protect, authorize('publisher', 'admin'), deleteBootcamp);
+	.put(
+		protect,
+		authorize('publisher', 'admin'),
+		checkBootcampOwnership,
+		uploadBootcampImage,
+		resizeBootcampImage,
+		updateBootcamp
+	)
+	.delete(protect, authorize('publisher', 'admin'), checkBootcampOwnership, deleteBootcamp);
 
 module.exports = router;

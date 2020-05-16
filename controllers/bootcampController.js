@@ -65,6 +65,17 @@ exports.onlyAdminAddMoreThanOneBootcamp = asyncHandler(async (req, res, next) =>
 /// @access      private
 exports.createBootcamp = factory.createOne(Bootcamp);
 
+// Check user is bootcamp ownerhsip before update and delete
+exports.checkBootcampOwnership = asyncHandler(async (req, res, next) => {
+	const bootcamp = await Bootcamp.findById(req.params.id);
+	if (!bootcamp) return next(new AppError(`No document found with that ID : ${req.params.id}`, 404));
+
+	if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+		return next(new AppError('You are not the owner to perform this action', 401));
+	}
+	next();
+});
+
 /// @desc        Upadate a bootcamp
 /// @route       PUT /api/v1/bootcamps/:id
 /// @access      private
