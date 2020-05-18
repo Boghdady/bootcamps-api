@@ -106,3 +106,40 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
 	createTokenAndSendViaCookie(user, 200, res);
 });
+
+/// @desc        Get current logged user
+/// @route       GET /api/v1/users/me
+/// @access      private
+exports.getMe = asyncHandler(async (req, res, next) => {
+	res.status(200).json({
+		success: true,
+		data: req.user
+	});
+});
+
+// Take an object and array of allowedFields to return object with properties that i need to update
+const filterObj = (obj, ...allowedFields) => {
+	const newObj = {};
+	Object.keys(obj).forEach((el) => {
+		if (allowedFields.includes(el)) newObj[el] = obj[el];
+	});
+	return newObj;
+};
+
+/// @desc        Update logged in user
+/// @route       PUT /api/v1/auth/updateMe
+/// @access      private
+exports.updateMe = asyncHandler(async (req, res, next) => {
+	if (req.body.password || req.body.passwordConfirm)
+		return next(
+			new AppError('This route is not for update password. You should user /auth/updatePassword route', 400)
+		);
+
+	const fieldsToUpdate = filterObj(req.body, 'name', 'email');
+	const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+		new: true,
+		runValidators: true
+	});
+
+	res.status(200).json({ success: true, data: user });
+});
