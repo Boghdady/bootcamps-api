@@ -1,4 +1,5 @@
 /* eslint-disable no-useless-escape */
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -80,6 +81,21 @@ userSchema.methods.checkIfUserChangePasswordAfter = function(JwtTimestamp) {
 		return JwtTimestamp < passwordChangedAtTimestamp; // true => password changed
 	}
 	return false;
+};
+
+// Generate random reset token
+userSchema.methods.generateResetPasswordToken = function() {
+	// 1) Create random token
+	const resetToken = crypto.randomBytes(32).toString('hex');
+	// 2) Create hash token and save it to database
+	const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+	this.resetPasswordToken = hashedToken;
+	// 3) craete expires time for token and save it to database
+	const expiresTime = Date.now() + 10 * 60 * 1000;
+	this.resetPasswordExpire = expiresTime;
+
+	// 4) return regular token not the hashed token
+	return resetToken;
 };
 
 module.exports = mongoose.model('User', userSchema);
