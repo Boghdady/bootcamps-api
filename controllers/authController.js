@@ -143,3 +143,18 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
 
 	res.status(200).json({ success: true, data: user });
 });
+
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+	const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+
+	const user = await await User.findById(req.user.id).select('+password');
+	const isMatch = await user.matchPassword(currentPassword);
+	console.log(isMatch);
+	if (!isMatch) return next(new AppError('Your current password is incorrect', 401));
+
+	user.password = newPassword;
+	user.passwordConfirm = newPasswordConfirm;
+	await user.save({ validateBeforeSave: true });
+
+	createTokenAndSendViaCookie(user, 200, res);
+});
