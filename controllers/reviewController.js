@@ -35,12 +35,12 @@ exports.setUserAndBootcampIdToBody = (req, res, next) => {
 	next();
 };
 
-// User can add only one review
-exports.checkIfUserWriteReviewBefore = asyncHandler(async (req, res, next) => {
-	const review = await Review.findOne({ user: req.user.id });
-	if (review) return next(new AppError('You Write a Review Before', 400));
-	next();
-});
+// // User can add only one review
+// exports.checkIfUserWriteReviewBefore = asyncHandler(async (req, res, next) => {
+// 	const review = await Review.findOne({ user: req.user.id });
+// 	if (review) return next(new AppError('You Write a Review Before', 400));
+// 	next();
+// });
 
 /// @desc        Create review for specific bootcamp
 /// @route       GET /api/v1/reviews

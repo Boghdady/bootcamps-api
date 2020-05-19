@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
-const ReviewSchema = new mongoose.Schema({
+const reviewSchema = new mongoose.Schema({
 	title: {
 		type: String,
 		trim: true,
@@ -33,4 +34,11 @@ const ReviewSchema = new mongoose.Schema({
 	}
 });
 
-module.exports = mongoose.model('Review', ReviewSchema);
+/// Prevent user from submitting more than one review per bootcamp
+reviewSchema.index({ bootcamp: 1, user: 1 }, { unique: true });
+
+reviewSchema.plugin(uniqueValidator, {
+	message: 'Can not write another review in the same bootcamp'
+});
+
+module.exports = mongoose.model('Review', reviewSchema);
