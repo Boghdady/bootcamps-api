@@ -144,6 +144,9 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
 	res.status(200).json({ success: true, data: user });
 });
 
+/// @desc        Update logged in user password
+/// @route       PUT /api/v1/auth/updatePassword
+/// @access      private
 exports.updatePassword = asyncHandler(async (req, res, next) => {
 	const { currentPassword, newPassword, newPasswordConfirm } = req.body;
 

@@ -12,7 +12,7 @@ const connectDB = require('./config/db');
 const bootcamps = require('./routes/bootcampRoutes');
 const courses = require('./routes/courseRoutes');
 const auth = require('./routes/authRoutes');
-// const users = require('./routes/userRoutes');
+const users = require('./routes/userRoutes');
 
 // Connect to database
 connectDB();
@@ -29,11 +29,13 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
 app.use('/api/v1/auth', auth);
-// app.use('/api/v1/users', users);
+app.use('/api/v1/users', users);
+
 // Handle undefined routs
 app.all('*', (req, res, next) => {
 	next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
 });
+
 // GLOBAL ERROR HANDLING MIDDLEWARE
 app.use(globalErrorHandler);
 
