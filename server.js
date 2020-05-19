@@ -13,6 +13,7 @@ const bootcamps = require('./routes/bootcampRoutes');
 const courses = require('./routes/courseRoutes');
 const auth = require('./routes/authRoutes');
 const users = require('./routes/userRoutes');
+const reviews = require('./routes/reviewRoutes');
 
 // Connect to database
 connectDB();
@@ -30,6 +31,7 @@ app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
+app.use('/api/v1/reviews', reviews);
 
 // Handle undefined routs
 app.all('*', (req, res, next) => {
