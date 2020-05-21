@@ -10,7 +10,7 @@ const Review = require('../models/reviewModel');
 dotenv.config({ path: '../config/config.env' });
 
 // connet to DB
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.DATABASE_LOCAL, {
 	useNewUrlParser: true,
 	useCreateIndex: true,
 	useFindAndModify: false,

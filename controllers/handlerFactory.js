@@ -5,12 +5,11 @@ const ApiFeatures = require('../utils/ApiFeatures');
 // These function return function (Closure concept in js)
 exports.deleteOne = (Model) =>
 	asyncHandler(async (req, res, next) => {
-		const doc = await Model.findById(req.params.id);
+		const doc = await Model.findByIdAndDelete(req.params.id);
 		if (!doc) {
 			return next(new AppError(`No document found with that ID: ${req.params.id}`, 404));
 		}
-		/// Use 'remove' method trigger 'remove' event in pre middleware
-		await doc.remove();
+		doc.remove();
 		//success, 204 mean no content
 		return res.status(204).json({
 			status: true,
@@ -27,6 +26,8 @@ exports.updateOne = (Model) =>
 		if (!doc) {
 			return next(new AppError(`No document found with that ID : ${req.params.id}`, 404));
 		}
+		// To trigger 'save' event when update document
+		doc.save();
 		res.status(200).json({
 			success: true,
 			data: doc

@@ -32,6 +32,8 @@ exports.getReview = factory.getOne(Review, {
 exports.setUserAndBootcampIdToBody = (req, res, next) => {
 	if (!req.body.bootcamp) req.body.bootcamp = req.params.bootcampId;
 	if (!req.body.user) req.body.user = req.user.id;
+	// const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+	// if (!bootcamp) return next(new AppError(`There is no bootcamp for this id:${req.params.bootcampId}`, 404));
 	next();
 };
 

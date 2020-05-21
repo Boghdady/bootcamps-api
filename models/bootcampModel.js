@@ -2,6 +2,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const geocoder = require('../utils/geocoder');
+const Course = require('./courseModel');
+const Review = require('./reviewModel');
 
 const bootcampSchema = new mongoose.Schema(
 	{
@@ -91,9 +93,9 @@ const bootcampSchema = new mongoose.Schema(
 		},
 		averageRating: {
 			type: Number,
-			default: 0,
 			min: [ 1, 'Average rating must be at least 1' ],
-			max: [ 10, 'Average rating must can not be more than 10' ]
+			max: [ 10, 'Average rating must can not be more than 10' ],
+			set: (val) => Math.round(val * 10) / 10
 		},
 		ratingsQuantity: {
 			type: Number,
@@ -150,6 +152,7 @@ bootcampSchema.virtual('courses', {
 bootcampSchema.pre('remove', async function(next) {
 	console.log(`courses for bootcampId : ${this._id} are deleted`);
 	await this.model('Course').deleteMany({ bootcamp: this._id });
+	await this.model('Review').deleteMany({ bootcamp: this._id });
 	next();
 });
 

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const Bootcamp = require('./bootcampModel');
 
 const reviewSchema = new mongoose.Schema({
 	title: {
@@ -58,14 +57,14 @@ reviewSchema.statics.calcAverageRatingsAndQuantity = async function(bootcampId) 
 	]);
 
 	if (statics.length >= 1) {
-		await Bootcamp.findByIdAndUpdate(bootcampId, {
-			ratingsQuantity: statics[0].nRating,
-			averageRating: statics[0].avgRating
+		await this.model('Bootcamp').findByIdAndUpdate(bootcampId, {
+			averageRating: statics[0].avgRating,
+			ratingsQuantity: statics[0].nRating
 		});
 	} else {
-		await Bootcamp.findByIdAndUpdate(bootcampId, {
-			ratingsQuantity: 0,
-			averageRating: 0
+		await this.model('Bootcamp').findByIdAndUpdate(bootcampId, {
+			averageRating: 0,
+			ratingsQuantity: 0
 		});
 	}
 };
@@ -73,9 +72,16 @@ reviewSchema.statics.calcAverageRatingsAndQuantity = async function(bootcampId) 
 reviewSchema.post('save', async function() {
 	await this.constructor.calcAverageRatingsAndQuantity(this.bootcamp);
 });
-reviewSchema.pre('remove', async function() {
+reviewSchema.post('remove', async function() {
 	await this.constructor.calcAverageRatingsAndQuantity(this.bootcamp);
 });
+
+// reviewSchema.pre(/^findOneAnd/, async function() {
+// 	this.r = await this.findOne();
+// });
+// reviewSchema.post(/^findOneAnd/, async function() {
+// 	if (this.r) await this.r.constructor.calcAverageRatingsAndQuantity(this.r.bootcamp);
+// });
 
 module.exports = mongoose.model('Review', reviewSchema);
 
