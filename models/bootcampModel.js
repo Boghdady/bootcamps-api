@@ -63,11 +63,6 @@ const bootcampSchema = new mongoose.Schema(
 			required: true,
 			enum: [ 'Web Development', 'Mobile Development', 'UI/UX', 'Data Science', 'Business', 'Other' ]
 		},
-		averageRating: {
-			type: Number,
-			min: [ 1, 'Rating must be at least 1' ],
-			max: [ 10, 'Rating must can not be more than 10' ]
-		},
 		averageCost: Number,
 		photo: {
 			type: String,
@@ -89,9 +84,20 @@ const bootcampSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false
 		},
+
 		createdAt: {
 			type: Date,
 			default: Date.now
+		},
+		averageRating: {
+			type: Number,
+			default: 0,
+			min: [ 1, 'Average rating must be at least 1' ],
+			max: [ 10, 'Average rating must can not be more than 10' ]
+		},
+		ratingsQuantity: {
+			type: Number,
+			default: 0
 		},
 		user: {
 			type: mongoose.Schema.ObjectId,

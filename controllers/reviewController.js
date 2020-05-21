@@ -3,7 +3,7 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/AppError');
 const asyncHandler = require('../middleware/asyncHandler');
 
-/// Middleware to create filterObject for get reviews In bootcamp
+// Middleware to create filterObject for get reviews In bootcamp
 exports.createFilterObjectForNestedRoute = (req, res, next) => {
 	let filter = {};
 	if (req.params.bootcampId) filter = { bootcamp: req.params.bootcampId };
@@ -16,16 +16,16 @@ exports.createFilterObjectForNestedRoute = (req, res, next) => {
 /// @route       GET /api/v1/bootcamps/:bootcampId/reviews
 /// @access      Public
 exports.getReviews = factory.getAll(Review, {
-	path: 'bootcamp',
-	select: 'name description'
+	path: 'user',
+	select: 'name'
 });
 
 /// @desc        Get a single review
 /// @route       GET /api/v1/reviews/:id
 /// @access      Public
 exports.getReview = factory.getOne(Review, {
-	path: 'bootcamp',
-	select: 'name description'
+	path: 'user',
+	select: 'name'
 });
 
 // Middleware to Set User and Bootcamp ID to body before creating review (create review for bootcamp)
@@ -34,13 +34,6 @@ exports.setUserAndBootcampIdToBody = (req, res, next) => {
 	if (!req.body.user) req.body.user = req.user.id;
 	next();
 };
-
-// // User can add only one review
-// exports.checkIfUserWriteReviewBefore = asyncHandler(async (req, res, next) => {
-// 	const review = await Review.findOne({ user: req.user.id });
-// 	if (review) return next(new AppError('You Write a Review Before', 400));
-// 	next();
-// });
 
 /// @desc        Create review for specific bootcamp
 /// @route       GET /api/v1/reviews

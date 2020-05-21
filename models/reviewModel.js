@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
+const Bootcamp = require('./bootcampModel');
 
 const reviewSchema = new mongoose.Schema({
 	title: {
@@ -18,6 +19,7 @@ const reviewSchema = new mongoose.Schema({
 		max: 10,
 		required: [ true, 'Please add a rating between 1 and 10' ]
 	},
+
 	createdAt: {
 		type: Date,
 		default: Date.now
@@ -36,9 +38,47 @@ const reviewSchema = new mongoose.Schema({
 
 /// Prevent user from submitting more than one review per bootcamp
 reviewSchema.index({ bootcamp: 1, user: 1 }, { unique: true });
-
 reviewSchema.plugin(uniqueValidator, {
 	message: 'Can not write another review in the same bootcamp'
 });
 
+/// Calculate average bootcamp rating & quantity
+reviewSchema.statics.calcAverageRatingsAndQuantity = async function(bootcampId) {
+	const statics = await this.aggregate([
+		{
+			$match: { bootcamp: bootcampId }
+		},
+		{
+			$group: {
+				_id: '$bootcamp',
+				avgRating: { $avg: '$rating' },
+				nRating: { $sum: 1 }
+			}
+		}
+	]);
+
+	if (statics.length >= 1) {
+		await Bootcamp.findByIdAndUpdate(bootcampId, {
+			ratingsQuantity: statics[0].nRating,
+			averageRating: statics[0].avgRating
+		});
+	} else {
+		await Bootcamp.findByIdAndUpdate(bootcampId, {
+			ratingsQuantity: 0,
+			averageRating: 0
+		});
+	}
+};
+
+reviewSchema.post('save', async function() {
+	await this.constructor.calcAverageRatingsAndQuantity(this.bootcamp);
+});
+reviewSchema.pre('remove', async function() {
+	await this.constructor.calcAverageRatingsAndQuantity(this.bootcamp);
+});
+
 module.exports = mongoose.model('Review', reviewSchema);
+
+// statics methods : we can only call it on the model
+// ex: (Review.calcAverageRatingsAndQuantity() or
+// this.calcAverageRatingsAndQuantity())
