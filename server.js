@@ -1,8 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xssClean = require('xss-clean');
+const hpp = require('hpp');
+const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const colors = require('colors');
+
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./middleware/errorHandler');
 // Load env vars
@@ -19,12 +25,26 @@ const reviews = require('./routes/reviewRoutes');
 connectDB();
 
 const app = express();
+
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-
 if (process.env.NODE_ENV === 'development') {
-	app.use(morgan('dev'));
+  app.use(morgan('dev'));
 }
+app.use(mongoSanitize());
+app.use(xssClean());
+app.use(hpp({
+  whitelist: [
+    'duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'difficulty', 'price'
+  ]
+}));
+const limiter = rateLimit({
+  max: 200,
+  windowMs: 60 * 60 * 1000, // 100 request per one hour
+  message: 'Too many requests from this ip, please try again in an hour!'
+});
+app.use('/api', limiter);
 
 // Mount routers
 app.use('/api/v1/bootcamps', bootcamps);
@@ -35,7 +55,7 @@ app.use('/api/v1/reviews', reviews);
 
 // Handle undefined routs
 app.all('*', (req, res, next) => {
-	next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
+  next(new AppError(`Cant't find ${req.originalUrl} on this server`, 404));
 });
 
 // GLOBAL ERROR HANDLING MIDDLEWARE
@@ -43,13 +63,13 @@ app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 3000;
 const server = app.listen(
-	PORT,
-	console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold)
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold)
 );
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
-	console.log(`Error: ${err.message}`.red);
-	// Close server & Exit proccess
-	server.close(() => process.exit(1));
+  console.log(`Error: ${err.message}`.red);
+  // Close server & Exit process
+  server.close(() => process.exit(1));
 });

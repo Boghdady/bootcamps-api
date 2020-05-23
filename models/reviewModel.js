@@ -76,13 +76,6 @@ reviewSchema.post('remove', async function() {
 	await this.constructor.calcAverageRatingsAndQuantity(this.bootcamp);
 });
 
-// reviewSchema.pre(/^findOneAnd/, async function() {
-// 	this.r = await this.findOne();
-// });
-// reviewSchema.post(/^findOneAnd/, async function() {
-// 	if (this.r) await this.r.constructor.calcAverageRatingsAndQuantity(this.r.bootcamp);
-// });
-
 module.exports = mongoose.model('Review', reviewSchema);
 
 // statics methods : we can only call it on the model
