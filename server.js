@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
@@ -6,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xssClean = require('xss-clean');
 const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const colors = require('colors');
 
@@ -29,9 +31,14 @@ const app = express();
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
+
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
 app.use(mongoSanitize());
 app.use(xssClean());
 app.use(hpp({
@@ -45,6 +52,9 @@ const limiter = rateLimit({
   message: 'Too many requests from this ip, please try again in an hour!'
 });
 app.use('/api', limiter);
+
+app.use(cors());
+
 
 // Mount routers
 app.use('/api/v1/bootcamps', bootcamps);

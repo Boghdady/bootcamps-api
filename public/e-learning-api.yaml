@@ -1,0 +1,968 @@
+openapi: 3.0.0
+info:
+  title: E-Learing API
+  version: 1.0.0
+  description: API for create bootcamps and courses, publisher can create courses and boocamps and student subscribe it
+  contact:
+    name: Ahmed Boghdady
+    email: a.boghdady@indexgroup.net
+
+tags:
+  - name: Authentication
+    description: These are operations related to authentication
+  - name: Bootcamp
+    description: These are operations related to bootcamp
+  - name: Course
+    description: These are operations related to course
+  - name: Review
+    description: These are operations related to review
+  - name: User
+    description: These are operations related to user
+
+paths:
+############################################### Authentication Routes #####################################################################
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      description: Register User
+      requestBody:
+        $ref: '#/components/requestBodies/ResgisterBody'
+
+      responses:
+        201:
+          $ref: '#/components/responses/RegisterSuccessfully'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      description: Login User
+      requestBody:
+        $ref: '#/components/requestBodies/LoginBody'
+
+      responses:
+        200:
+          $ref: '#/components/responses/LoginSuccessfully'
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/forgotPassword:
+    post:
+      tags:
+        - Authentication
+      description: Forgot Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: mary@gmail.com
+      responses:
+        200:
+          description: Send token to email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Token sent to your email!
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/me:
+    get:
+      security:
+        - password: [write]
+      tags:
+        - Authentication
+      description: Get Logged User
+
+      responses:
+        200:
+          $ref: '#/components/responses/Loggeduser'
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/resetPassword/{resetToken}:
+    put:
+      tags:
+        - Authentication
+      description: Reset Password
+      parameters:
+        - $ref: '#/components/parameters/ResetToken'
+      responses:
+        200:
+          $ref: '#/components/responses/LoginSuccessfully'
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/updateMe:
+    put:
+      security:
+        - password: [write]
+      tags:
+        - Authentication
+      description: Update logged in user
+      requestBody:
+        $ref: '#/components/requestBodies/ResgisterBody'
+      responses:
+        200:
+          $ref: '#/components/responses/Loggeduser'
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/updatePassword:
+    put:
+      security:
+        - password: [write]
+      tags:
+        - Authentication
+      description: Update logged in user password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  example: 12345678
+                newPassword:
+                  type: string
+                  example: 123456789
+                newPasswordConfirm:
+                  type: string
+                  example: 123456789
+      responses:
+        200:
+          description: User data has been updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: data update successfully
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/auth/logout:
+    get:
+      security:
+        - password: [write]
+      tags:
+        - Authentication
+      description: logout logged in user
+      responses:
+        200:
+          description: User has been logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+
+        500:
+          $ref: '#/components/responses/500ApiError'
+  ############################################### Bootcamp Routes #####################################################################
+  /api/v1/bootcamps:
+    post:
+      security:
+        - password: [write]
+      tags:
+        - Bootcamp
+      description: Add Bootcamp to database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bootcamp'
+
+      responses:
+        201:
+          description: the bootcamp has been craeted
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+    get:
+      tags:
+        - Bootcamp
+      description: Fetch all bootcamps with pagination,select, etc
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+
+      responses:
+        200:
+          $ref: '#/components/responses/BootcampsResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+  /api/v1/bootcamps/{bootcampId}:
+    get:
+      tags:
+        - Bootcamp
+      description: Fetch Specific bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+
+      responses:
+        200:
+          description: This is a specifc bootcamp
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bootcamp'
+        500:
+          $ref: '#/components/responses/500ApiError'
+    put:
+      security:
+        - password: [write]
+      tags:
+        - Bootcamp
+      description: Update specific bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+
+      responses:
+        200:
+          description: update bootcamp (success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succes:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: updated successfully
+    delete:
+      security:
+        - password: [write]
+      tags:
+        - Bootcamp
+      description: Delete specific bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+
+      responses:
+        204:
+          description: no content
+
+  /api/v1/bootcamps/{zipcode}/{distance}:
+    get:
+      tags:
+        - Bootcamp
+      description: Get Bootcamps WithIn Radius
+      parameters:
+        - $ref: '#/components/parameters/ZipCode'
+        - $ref: '#/components/parameters/Distance'
+      responses:
+        200:
+          $ref: '#/components/responses/BootcampsResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/bootcamps/bootcamps-within/{distance}/center/{latlng}/unit/{unit}:
+    get:
+      tags:
+        - Bootcamp
+      description: Get Bootcamps WithIn Distance
+      parameters:
+        - $ref: '#/components/parameters/Distance'
+        - $ref: '#/components/parameters/LatLng'
+        - $ref: '#/components/parameters/Unit'
+      responses:
+        200:
+          $ref: '#/components/responses/BootcampsResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  ############################################### Course Routes #####################################################################
+
+  /api/v1/bootcamps/{bootcampId}/courses:
+    post:
+      security:
+        - password: [write]
+      tags:
+        - Course
+      description: Add Course for bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+
+      responses:
+        201:
+          description: Course has been created successfully
+        500:
+          $ref: '#/components/responses/500ApiError'
+    get:
+      tags:
+        - Course
+      description: Get all courses for specific bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+
+      responses:
+        200:
+          description: This is a specifc course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/courses:
+    get:
+      tags:
+        - Course
+      description: Fetch all course with pagination,select, etc
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+
+      responses:
+        200:
+          $ref: '#/components/responses/CourseResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/courses/{courseId}:
+    get:
+      tags:
+        - Course
+      description: Fetch Specific course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+
+      responses:
+        200:
+          description: This is a specifc course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        500:
+          $ref: '#/components/responses/500ApiError'
+    put:
+      security:
+        - password: [write]
+      tags:
+        - Course
+      description: Update specific course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+
+      responses:
+        200:
+          description: update course (success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succes:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: updated successfully
+    delete:
+      security:
+        - password: [write]
+      tags:
+        - Course
+      description: Delete specific course
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+
+      responses:
+        204:
+          description: no content
+
+  ############################################### Reviews Routes #####################################################################
+  /api/v1/bootcamps/{bootcampId}/reviews:
+    post:
+      security:
+        - password: [write]
+      tags:
+        - Review
+      description: Add Review for bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+
+      responses:
+        201:
+          description: Review has been created successfully
+        500:
+          $ref: '#/components/responses/500ApiError'
+    get:
+      tags:
+        - Review
+      description: Get all reviews for specific bootcamp
+      parameters:
+        - $ref: '#/components/parameters/BootcampId'
+
+      responses:
+        200:
+          description: These are reviews for specific bootcamp
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/CourseResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/reviews:
+    get:
+      tags:
+        - Review
+      description: Fetch all reciews with pagination,select, etc
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+
+      responses:
+        200:
+          $ref: '#/components/responses/ReviewResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+  /api/v1/reviews/{reviewId}:
+    get:
+      tags:
+        - Review
+      description: Fetch Specific review
+      parameters:
+        - $ref: '#/components/parameters/ReviewId'
+
+      responses:
+        200:
+          description: This is a specifc review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        500:
+          $ref: '#/components/responses/500ApiError'
+    put:
+      security:
+        - password: [write]
+      tags:
+        - Review
+      description: Update specific review
+      parameters:
+        - $ref: '#/components/parameters/ReviewId'
+
+      responses:
+        200:
+          description: update review (success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succes:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: updated successfully
+    delete:
+      security:
+        - password: [write]
+      tags:
+        - Review
+      description: Delete specific review
+      parameters:
+        - $ref: '#/components/parameters/ReviewId'
+
+      responses:
+        204:
+          description: no content
+
+  ############################################### User Routes #####################################################################
+  /api/v1/users:
+    post:
+      security:
+        - password: [write]
+      tags:
+        - User
+      description: Add User to database (Only Admin)
+      parameters: 
+      - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Page'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+
+      responses:
+        201:
+          description: the user has been craeted
+        500:
+          $ref: '#/components/responses/500ApiError'
+
+    get:
+      tags:
+        - User
+      description: Fetch all users with pagination,select, etc
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+
+      responses:
+        200:
+          $ref: '#/components/responses/UserResponse'
+        500:
+          $ref: '#/components/responses/500ApiError'
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - User
+      description: Fetch Specific user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+        200:
+          description: This is a specifc user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        500:
+          $ref: '#/components/responses/500ApiError'
+    put:
+      security:
+        - password: [write]
+      tags:
+        - User
+      description: Update specific user (Only Admin)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+        200:
+          description: update user (success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succes:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: updated successfully
+    delete:
+      security:
+        - password: [write]
+      tags:
+        - User
+      description: Delete specific user (only admin)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+
+      responses:
+        204:
+          description: no content
+
+components:
+  ############################################### securitySchemes #####################################################################
+  securitySchemes:
+    password:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: 'http://example.com/oauth/token'
+          scopes:
+            write: allows modifying resource
+            read: allows reading resource
+
+  ############################################### Schemas #####################################################################
+  schemas:
+    User:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        id:
+          type: string
+          example: 182
+        name:
+          type: string
+          example: Ahmed Boghdady
+        email:
+          type: string
+          example: a.boghdady@indexgroup.net
+        password:
+          type: string
+          example: 098209842
+        role:
+          type: string
+          example: publisher
+    Bootcamp:
+      type: object
+      required:
+        - title
+      properties:
+        id:
+          type: string
+          example: 20
+        title:
+          type: string
+          example: Mobile Development Bootcamp
+        totution:
+          type: integer
+          example: 400
+
+    Course:
+      type: object
+      required:
+        - title
+      properties:
+        id:
+          type: string
+          example: 30
+        title:
+          type: string
+          example: The Complete Nodejs Course
+
+    Review:
+      type: object
+      required:
+        - title
+        - rating
+        - bootcamp
+        - user
+      properties:
+        id:
+          type: string
+          example: 5d7a514b5d2c12c7449be020
+        title:
+          type: string
+          example: Learned a ton!
+        text:
+          type: string
+          example: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec viverra feugiat mauris id viverra
+        rating:
+          type: number
+          example: 8
+        bootcamp:
+          type: string
+          example: 5d713995b721c3bb38c1f5d0
+        user:
+          $ref: '#/components/schemas/User'
+
+  ############################################### Parameters #####################################################################
+  parameters:
+    Page:
+      in: query
+      name: page
+      description: Page number to return
+      required: false
+      schema:
+        type: integer
+        example: 2
+
+    Limit:
+      in: query
+      name: limit
+      description: Number of results in the page
+      required: false
+      schema:
+        type: integer
+        example: 25
+        maximum: 100
+
+    BootcampId:
+      in: path
+      name: bootcampId
+      required: true
+      schema:
+        type: integer
+        example: 20
+
+    CourseId:
+      in: path
+      name: courseId
+      required: true
+      schema:
+        type: integer
+        example: 20
+
+    ReviewId:
+      in: path
+      name: reviewId
+      required: true
+      schema:
+        type: integer
+        example: 20
+
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: integer
+        example: 20
+
+    ZipCode:
+      in: path
+      name: zipcode
+      required: true
+      schema:
+        type: integer
+        example: 41616
+
+    Distance:
+      in: path
+      name: distance
+      required: true
+      schema:
+        type: integer
+        example: 100
+
+    LatLng:
+      in: path
+      name: latlng
+      required: true
+      schema:
+        type: array
+        items:
+          properties:
+            lat:
+              type: integer
+              example: -71.525909
+            lng:
+              type: integer
+              example: 41.483657
+
+    Unit:
+      in: path
+      name: unit
+      required: true
+      schema:
+        type: string
+        example: mi
+
+    ResetToken:
+      in: path
+      name: resetToken
+      required: true
+      schema:
+        type: string
+        example: 43aed686b09c5c7bbac0cc0487b819d67904ed0809f9c4f45925c61b997b53b0
+
+  ############################################### Request Bodies #####################################################################
+  requestBodies:
+    LoginBody:
+      description: Login Body
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                example: boghdady107@gmail.com
+              password:
+                type: string
+                example: pass1234
+
+    ResgisterBody:
+      description: Regiester Body
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - email
+              - password
+              - passwordConfirm
+            properties:
+              name:
+                type: string
+                example: ahmed boghdady
+              email:
+                type: string
+                example: boghdady107@gmail.com
+              password:
+                type: string
+                example: pass1234
+              passwordConfirm:
+                type: string
+                example: pass1234
+              role:
+                type: string
+                example: user
+
+  ############################################### Responses #####################################################################
+  responses:
+    500ApiError:
+      description: This is an unexpected error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode:
+                type: string
+                example: 500
+              message:
+                type: string
+                example: This is an error
+
+    BootcampsResponse:
+      description: List of created bootcamps
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              count:
+                type: integer
+                example: 4
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bootcamp'
+
+    CourseResponse:
+      description: List of created courses
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              count:
+                type: integer
+                example: 4
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+    ReviewResponse:
+      description: List of created reviews
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              count:
+                type: integer
+                example: 4
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+
+    UserResponse:
+      description: List of created users
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              count:
+                type: integer
+                example: 4
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    Loggeduser:
+      description: Logged in user
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/User'
+
+    RegisterSuccessfully:
+      description: Registter successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkN2E1MTRiNWQyYzEyYzc0NDliZTA0MiIsImlhdCI6MTU5MDgzNjQ0OSwiZXhwIjoxNTkzNDI4NDQ5fQ.nOykDWH7hAndWCuuocMSYe3aXs-ALS5FZKQwaFdwzpY
+
+    LoginSuccessfully:
+      description: Login Sccessfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkN2E1MTRiNWQyYzEyYzc0NDliZTA0MiIsImlhdCI6MTU5MDgzNjQ0OSwiZXhwIjoxNTkzNDI4NDQ5fQ.nOykDWH7hAndWCuuocMSYe3aXs-ALS5FZKQwaFdwzpY

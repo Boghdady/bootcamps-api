@@ -43,7 +43,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new AppError('Invalid email or password', 401));
   }
 
-  // Craete token
+  // Create token
   createTokenAndSendViaCookie(user, 200, res);
 });
 
@@ -73,11 +73,10 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     });
 
     res.status(200).json({
-      status: 'Success',
+      success: true,
       message: 'Token sent to your email!'
     });
   } catch (error) {
-    console.log(error);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save({ validateBeforeSave: false });

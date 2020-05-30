@@ -52,7 +52,7 @@ exports.onlyBootcampOwnerCanAddCourseForBootcamp = asyncHandler(async (req, res,
 /// @access      Private
 exports.createCourse = factory.createOne(Course);
 
-// Check user is course ownerhsip before update and delete
+// Check user is course ownership before update and delete
 exports.checkCourseOwnership = asyncHandler(async (req, res, next) => {
 	const course = await Course.findById(req.params.id);
 	if (!course) return next(new AppError(`No document found with that ID : ${req.params.id}`, 404));
